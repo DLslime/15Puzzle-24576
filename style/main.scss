@@ -64,7 +64,7 @@ h1.title {
   text-align: right;
 }
 
-.score-container, .best-container {
+.score-container, {
   $height: 25px;
 
   position: relative;
@@ -91,27 +91,10 @@ h1.title {
     text-align: center;
     color: $tile-color;
   }
-
-  .score-addition {
-    position: absolute;
-    right: 30px;
-    color: red;
-    font-size: $height;
-    line-height: $height;
-    font-weight: bold;
-    color: rgba($text-color, .9);
-    z-index: 100;
-    @include animation(move-up 600ms ease-in);
-    @include animation-fill-mode(both);
-  }
 }
 
 .score-container:after {
-  content: "Score";
-}
-
-.best-container:after {
-  content: "Best";
+  content: "Step";
 }
 
 p {
@@ -333,29 +316,31 @@ hr {
 
   $base: 2;
   $exponent: 1;
-  $limit: 11;
+  $limit: 13;
 
   // Colors for all 11 states, false = no special color
   $special-colors: false false, // 2
                    false false, // 4
-                   #f78e48 true, // 8
-                   #fc5e2e true, // 16
-                   #ff3333 true, // 32
-                   #ff0000 true, // 64
-                   false true, // 128
-                   false true, // 256
-                   false true, // 512
-                   false true, // 1024
-                   false true; // 2048
+                   false false, // 8
+                   false false, // 16
+                   false false, // 32
+                   false false, // 64
+                   false false, // 128
+                   false false, // 256
+                   false false, // 512
+                   false false, // 1024
+				   false false,
+				   false false,
+                   #FFD700 true; // 2048
 
   // Build tile colors
   @while $exponent <= $limit {
-    $power: pow($base, $exponent);
+    $power: pow($base, $exponent) * 3;
 
     &.tile-#{$power} .tile-inner {
       // Calculate base background color
-      $gold-percent: ($exponent - 1) / ($limit - 1) * 100;
-      $mixed-background: mix($tile-gold-color, $tile-color, $gold-percent);
+      //$gold-percent: ($exponent - 1) / ($limit - 1) * 100;
+      //$mixed-background: mix($tile-gold-color, $tile-color, $gold-percent);
 
       $nth-color: nth($special-colors, $exponent);
 
@@ -363,7 +348,8 @@ hr {
       $bright-color: nth($nth-color, 2);
 
       @if $special-background {
-        $mixed-background: mix($special-background, $mixed-background, 55%);
+		background: $special-background;
+//        $mixed-background: mix($special-background, $mixed-background, 55%);
       }
 
       @if $bright-color {
@@ -371,12 +357,12 @@ hr {
       }
 
       // Set background
-      background: $mixed-background;
+      //background: $mixed-background;
 
       // Add glow
       $glow-opacity: max($exponent - 4, 0) / ($limit - 4);
 
-      @if not $special-background {
+      @if $special-background {
         box-shadow: 0 0 30px 10px rgba($tile-gold-glow-color, $glow-opacity / 1.8),
                     inset 0 0 0 1px rgba(white, $glow-opacity / 3);
       }
@@ -389,29 +375,44 @@ hr {
         @include smaller($mobile-threshold) {
           font-size: 25px;
         }
-      } @else if $power >= 1000 {
+      } @else if $power >= 1000 and $power < 10000 {
         font-size: 35px;
 
         @include smaller($mobile-threshold) {
           font-size: 15px;
         }
-      }
+      } @else if $power >= 10000 {
+		font-size: 30px;
+		
+		@include smaller($mobile-threshold) {
+		  font-size: 10px;
+		}
+	  }
     }
 
     $exponent: $exponent + 1;
   }
 
+	&.tile-1 .tile-inner {
+	  color: $bright-text-color;
+	  background: #00BFFF;
+	}
+	&.tile-2 .tile-inner {
+	  color: $bright-text-color;
+	  background: #EA143C;
+	}
+  
   // Super tiles (above 2048)
-  &.tile-super .tile-inner {
-    color: $bright-text-color;
-    background: mix(#333, $tile-gold-color, 95%);
-
-    font-size: 30px;
-
-    @include smaller($mobile-threshold) {
-      font-size: 10px;
-    }
-  }
+//  &.tile-super .tile-inner {
+//    color: $bright-text-color;
+//    background: mix(#333, $tile-gold-color, 95%);
+//
+//   font-size: 30px;
+//
+//    @include smaller($mobile-threshold) {
+//      font-size: 10px;
+//    }
+//  }
 }
 
 @include keyframes(appear) {
@@ -500,7 +501,7 @@ hr {
     margin: 0 auto;
   }
 
-  .score-container, .best-container {
+  .score-container {
     margin-top: 0;
     padding: 15px 10px;
     min-width: 40px;

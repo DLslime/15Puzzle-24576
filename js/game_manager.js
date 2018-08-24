@@ -8,7 +8,7 @@ function GameManager(size, InputManager, Actuator, StorageManager) {
 
   this.inputManager.on("move", this.move.bind(this));
   this.inputManager.on("restart", this.restart.bind(this));
-  this.inputManager.on("keepPlaying", this.keepPlaying.bind(this));
+  // this.inputManager.on("keepPlaying", this.keepPlaying.bind(this));
 
   this.setup();
 }
@@ -21,14 +21,14 @@ GameManager.prototype.restart = function () {
 };
 
 // Keep playing after winning (allows going over 2048)
-GameManager.prototype.keepPlaying = function () {
-  this.keepPlaying = true;
-  this.actuator.continueGame(); // Clear the game won/lost message
-};
+// GameManager.prototype.keepPlaying = function () {
+  // this.keepPlaying = true;
+  // this.actuator.continueGame(); // Clear the game won/lost message
+// };
 
 // Return true if the game is lost, or has won and the user hasn't kept playing
 GameManager.prototype.isGameTerminated = function () {
-  return this.over || (this.won && !this.keepPlaying);
+  return this.over || this.won;//(this.won && !this.keepPlaying);
 };
 
 // Set up the game
@@ -42,13 +42,13 @@ GameManager.prototype.setup = function () {
     this.score       = previousState.score;
     this.over        = previousState.over;
     this.won         = previousState.won;
-    this.keepPlaying = previousState.keepPlaying;
+    // this.keepPlaying = previousState.keepPlaying;
   } else {
     this.grid        = new Grid(this.size);
     this.score       = 0;
     this.over        = false;
     this.won         = false;
-    this.keepPlaying = false;
+    // this.keepPlaying = false;
 
     // Add the initial tiles
     this.addStartTiles();
@@ -91,7 +91,7 @@ GameManager.prototype.actuate = function () {
   // }
 
   // Clear the state when the game is over (game over only, not win)
-  if (this.over) {
+  if (this.over || this.won) {
     this.storageManager.clearGameState();
   } else {
     this.storageManager.setGameState(this.serialize());
@@ -114,7 +114,7 @@ GameManager.prototype.serialize = function () {
     score:       this.score,
     over:        this.over,
     won:         this.won,
-    keepPlaying: this.keepPlaying
+    // keepPlaying: this.keepPlaying
   };
 };
 

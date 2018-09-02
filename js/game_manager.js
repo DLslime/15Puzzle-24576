@@ -58,6 +58,10 @@ GameManager.prototype.setup = function () {
   this.actuate();
 };
 
+GameManager.prototype.getRankValue = function (i) {
+	return i > 2 ? Math.pow(2, i - 3) * 3 : i;
+};
+
 // Set up the initial tiles to start the game with
 GameManager.prototype.addStartTiles = function () {
   for (var i = 0; i < this.startTiles; i++) {
@@ -78,7 +82,7 @@ GameManager.prototype.addRandomTile = function () {
 
 GameManager.prototype.addOrderTile = function(i) {
 	if (this.grid.cellsAvailable()) {
-		var value = i > 2 ? Math.pow(2, i - 3) * 3 : i;
+		var value = this.getRankValue(i);
 		var tile = new Tile(this.grid.randomAvailableCell(), value);
 		this.grid.insertTile(tile);
 	}
@@ -204,9 +208,9 @@ GameManager.prototype.move = function (direction) {
   if (moved) {
     // this.addRandomTile();
 
-    // if (!this.movesAvailable()) {
-      // this.over = true; // Game over!
-    // }
+    if (!this.mergeAvailable()) {
+      this.over = true; // Game over!
+    }
 	this.score++;
 
     this.actuate();
@@ -264,6 +268,54 @@ GameManager.prototype.findNextPosition = function(cell, vector) {
 
 GameManager.prototype.findPreviousPosition = function(cell, vector) {
 	return {x: cell.x - vector.x, y: cell.y - vector.y};
+};
+
+GameManager.prototype.mergeAvailable = function () {
+	var amount = this.grid.getTileAmount();
+	if (amount <= 2) {
+		return true;
+	}
+	// if (this.maybeSquareable.indexOf(amount) === -1) {
+		// return true;
+	// }
+	if (this.grid.isCellsSquare()) {
+		var minTiles = [];
+		var minValue = this.getRankValue(this.size * this.size - amount + 1);
+		this.grid.eachCell(function (x, y, tile) {
+			if (tile) {
+				if (minValue === 2 ? (tile.value === 1 || tile.value === 2) : tile.value === minValue) {
+					minTiles.push({ x: x, y: y });
+				}
+			}
+		})
+		if (minTiles[0].x !== minTiles[1].x && minTiles[0].y !== minTiles[1].y) {
+			return false;
+		}
+		if (minTiles[0].x === minTiles[1].x) {
+			for (var i = minTiles[1].y - 1; i > minTiles[0].y; i--) {
+				if (this.grid.cellOccupied({x: minTiles[0].x, y: i})) {
+					return false;
+				}
+			}
+		} else {
+			for (var i = minTiles[1].x - 1; i > minTiles[0].x; i--) {
+				if (this.grid.cellOccupied({x: i, y: minTiles[0].y})) {
+					return false;
+				}
+			}
+		}
+	}
+	return true;
+};
+
+GameManager.prototype.maybeSquareable = function () {
+	var maybe = [];
+	for (var i = this.size; i > 0; i--) {
+		for (var j = i; j > 0; j--) {
+			maybe.push(i * j);
+		}
+	}
+	return maybe;
 };
 
 GameManager.prototype.movesAvailable = function () {

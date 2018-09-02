@@ -54,6 +54,18 @@ Grid.prototype.availableCells = function () {
   return cells;
 };
 
+Grid.prototype.unavailableCells = function () {
+  var cells = [];
+
+  this.eachCell(function (x, y, tile) {
+    if (tile) {
+      cells.push({ x: x, y: y });
+    }
+  });
+
+  return cells;
+};
+
 // Call callback for every cell
 Grid.prototype.eachCell = function (callback) {
   for (var x = 0; x < this.size; x++) {
@@ -61,6 +73,50 @@ Grid.prototype.eachCell = function (callback) {
       callback(x, y, this.cells[x][y]);
     }
   }
+};
+
+Grid.prototype.getTileAmount = function () {
+	return this.unavailableCells().length;
+};
+
+Grid.prototype.isCellsSquare = function () {
+	var cells = this.unavailableCells();
+	
+	var amount;
+	var firstAmount = 0;
+	
+	for (var x = 0; x < this.size; x++) {
+		amount = 0;
+		cells.forEach(function (cell) {
+			if (cell.x === x) {
+				amount += 1;
+			}
+		})
+		if (firstAmount === 0) {
+			firstAmount = amount;
+		} else {
+			if (amount !== firstAmount && amount !== 0) {
+				return false;
+			}
+		}
+	}
+	firstAmount = 0;
+	for (var y = 0; y < this.size; y++) {
+		amount = 0;
+		cells.forEach(function (cell) {
+			if (cell.y === y) {
+				amount += 1;
+			}
+		})
+		if (firstAmount === 0) {
+			firstAmount = amount;
+		} else {
+			if (amount !== firstAmount && amount !== 0) {
+				return false;
+			}
+		}
+	}
+	return true;
 };
 
 // Check if there are any cells available
